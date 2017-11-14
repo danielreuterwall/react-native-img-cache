@@ -158,9 +158,9 @@ export class BaseCachedImage extends Component {
             If you want to see this feature supported, please file and issue at
              https://github.com/wcandillon/react-native-img-cache`);
         }
-        else if (typeof (source) === "number") {
-            throw new Error(`Provided an image that is available locally already.`);
-        }
+        /*else if (typeof(source) === "number") {
+           throw new Error(`Provided an image that is available locally already.`);
+        }*/
         return source;
     }
     componentWillMount() {
