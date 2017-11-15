@@ -1,3 +1,11 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import React, { Component } from "react";
 import { Image, ImageBackground, Platform } from "react-native";
 import RNFetchBlob from "react-native-fetch-blob";
@@ -57,12 +65,19 @@ export class ImageCache {
         }
     }
     bust(uri, retry = true) {
-        const cache = this.cache[uri];
-        if (cache !== undefined && !cache.immutable) {
-            RNFetchBlob.fs.unlink(cache.path);
-            cache.path = undefined;
-            retry && this.get(uri);
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            const cache = this.cache[uri];
+            if (cache !== undefined && !cache.immutable) {
+                try {
+                    yield RNFetchBlob.fs.unlink(cache.path);
+                    cache.path = undefined;
+                    retry && this.get(uri);
+                }
+                catch (error) {
+                    console.error("Failed to unlink cached image", error);
+                }
+            }
+        });
     }
     cancel(uri) {
         const cache = this.cache[uri];
@@ -79,21 +94,26 @@ export class ImageCache {
             cache.downloading = true;
             cache.cancelled = false;
             const method = source.method ? source.method : "GET";
-            cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
-                cache.downloading = false;
-                if (cache.cancelled) {
-                    this.bust(uri, false);
-                }
-                else {
-                    cache.path = path;
-                    this.notify(uri);
-                }
-            }).catch(() => {
-                cache.downloading = false;
-                // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
-                this.bust(uri);
-            });
+            try {
+                cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
+                cache.task.then(() => {
+                    cache.downloading = false;
+                    if (cache.cancelled) {
+                        this.bust(uri, false);
+                    }
+                    else {
+                        cache.path = path;
+                        this.notify(uri);
+                    }
+                }).catch(() => {
+                    cache.downloading = false;
+                    // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
+                    this.bust(uri);
+                });
+            }
+            catch (error) {
+                console.error("Failed to download image", error);
+            }
         }
     }
     get(uri) {

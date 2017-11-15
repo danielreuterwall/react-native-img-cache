@@ -80,15 +80,20 @@ export class ImageCache {
         }
     }
 
-    bust(uri: string, retry: boolean = true) {
+    async bust(uri: string, retry: boolean = true) {
         const cache = this.cache[uri];
         if (cache !== undefined && !cache.immutable) {
-            RNFetchBlob.fs.unlink(cache.path);
-            cache.path = undefined;
-            retry && this.get(uri);
+            try {
+                await RNFetchBlob.fs.unlink(cache.path);
+                cache.path = undefined;
+                retry && this.get(uri);
+            }
+            catch (error) {
+                console.error("Failed to unlink cached image", error);
+            }
         }
     }
-    
+
     cancel(uri: string) {
         const cache = this.cache[uri];
         if (cache && cache.downloading) {
@@ -105,20 +110,25 @@ export class ImageCache {
             cache.downloading = true;
             cache.cancelled = false;
             const method = source.method ? source.method : "GET";
-            cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
-            cache.task.then(() => {
-                cache.downloading = false;
-                if (cache.cancelled) {
-                    this.bust(uri, false);
-                } else {
-                    cache.path = path;
-                    this.notify(uri);
-                }
-            }).catch(() => {
-                cache.downloading = false;
-                // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
-                this.bust(uri);
-            });
+            try {
+                cache.task = RNFetchBlob.config({ path }).fetch(method, uri, source.headers);
+                cache.task.then(() => {
+                    cache.downloading = false;
+                    if (cache.cancelled) {
+                        this.bust(uri, false);
+                    } else {
+                        cache.path = path;
+                        this.notify(uri);
+                    }
+                }).catch(() => {
+                    cache.downloading = false;
+                    // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
+                    this.bust(uri);
+                });
+            }
+            catch (error) {
+                console.error("Failed to download image", error);
+            }
         }
     }
 

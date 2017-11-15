@@ -14,7 +14,7 @@ export declare class ImageCache {
     clear(): any;
     on(source: CachedImageURISource, handler: CacheHandler, immutable?: boolean): void;
     dispose(uri: string, handler: CacheHandler): void;
-    bust(uri: string, retry?: boolean): void;
+    bust(uri: string, retry?: boolean): Promise<void>;
     cancel(uri: string): void;
     private download(cache);
     private get(uri);
