@@ -42,3 +42,4 @@ jspm_packages
 
 # Typescript
 # build
+package-lock.json

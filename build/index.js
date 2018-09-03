@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import React, { Component } from "react";
 import { Image, ImageBackground, Platform } from "react-native";
-import RNFetchBlob from "react-native-fetch-blob";
+import RNFetchBlob from "rn-fetch-blob";
 const SHA1 = require("crypto-js/sha1");
 const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 const BASE_DIR = RNFetchBlob.fs.dirs.CacheDir + "/react-native-img-cache";
@@ -178,9 +178,9 @@ export class BaseCachedImage extends Component {
             If you want to see this feature supported, please file and issue at
              https://github.com/wcandillon/react-native-img-cache`);
         }
-        /*else if (typeof(source) === "number") {
-           throw new Error(`Provided an image that is available locally already.`);
-        }*/
+        else if (typeof (source) === "number") {
+            throw new Error(`Provided an image that is available locally already.`);
+        }
         return source;
     }
     componentWillMount() {
