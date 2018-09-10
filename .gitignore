@@ -43,3 +43,5 @@ jspm_packages
 # Typescript
 # build
 package-lock.json
+
+.DS_Store

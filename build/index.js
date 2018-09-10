@@ -179,21 +179,21 @@ export class BaseCachedImage extends Component {
              https://github.com/wcandillon/react-native-img-cache`);
         }
         else if (typeof (source) === "number") {
-            throw new Error(`Provided an image that is available locally already.`);
+            console.warn(`Provided an image that is available locally already.`);
         }
         return source;
     }
     componentWillMount() {
         const { mutable } = this.props;
         const source = this.checkSource(this.props.source);
-        if (source.uri) {
+        if (typeof (source) !== "number" && source.uri) {
             this.observe(source, mutable === true);
         }
     }
     componentWillReceiveProps(nextProps) {
         const { mutable } = nextProps;
         const source = this.checkSource(nextProps.source);
-        if (source.uri) {
+        if (typeof (source) !== "number" && source.uri) {
             this.observe(source, mutable === true);
         }
     }
