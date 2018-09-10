@@ -89,7 +89,7 @@ export class ImageCache {
                 retry && this.get(uri);
             }
             catch (error) {
-                console.error("Failed to unlink cached image", error);
+                console.warn("Failed to unlink cached image", error);
             }
         }
     }
@@ -127,7 +127,7 @@ export class ImageCache {
                 });
             }
             catch (error) {
-                console.error("Failed to download image", error);
+                console.warn("Failed to download image", error);
             }
         }
     }
