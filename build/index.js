@@ -67,14 +67,14 @@ export class ImageCache {
     bust(uri, retry = true) {
         return __awaiter(this, void 0, void 0, function* () {
             const cache = this.cache[uri];
-            if (cache !== undefined && !cache.immutable) {
+            if (cache !== undefined && !cache.immutable && cache.path) {
                 try {
                     yield RNFetchBlob.fs.unlink(cache.path);
                     cache.path = undefined;
                     retry && this.get(uri);
                 }
                 catch (error) {
-                    console.warn("Failed to unlink cached image", error);
+                    console.debug("Failed to unlink cached image", error);
                 }
             }
         });
@@ -170,6 +170,16 @@ export class BaseCachedImage extends Component {
                 props[prop] = this.props[prop];
             }
         });
+        if (this.props.onLoad) {
+            props["onLoad"] = () => {
+                // avoid calling onload for empty source
+                if (props.source &&
+                    (props.source.constructor !== Object ||
+                        Object.keys(props.source).length !== 0)) {
+                    this.props.onLoad && this.props.onLoad();
+                }
+            };
+        }
         return props;
     }
     checkSource(source) {
@@ -179,7 +189,7 @@ export class BaseCachedImage extends Component {
              https://github.com/wcandillon/react-native-img-cache`);
         }
         else if (typeof (source) === "number") {
-            console.warn(`Provided an image that is available locally already.`);
+            console.debug(`Provided an image that is available locally already.`);
         }
         return source;
     }
